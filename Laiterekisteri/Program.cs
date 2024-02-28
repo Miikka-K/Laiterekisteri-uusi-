@@ -73,6 +73,9 @@ namespace Laitekirjasto
         public void ShowPurchaseInfo()
         {
             // Luetaan laitteen ostotiedot sen kentistä, huom! this
+            Console.WriteLine();
+            Console.WriteLine("Laitteen hankintatiedot");
+            Console.WriteLine("-----------------------");
             Console.WriteLine("Laitteen nimi: " + this.name);
             Console.WriteLine("ostopäivä: " + this.purchaseDate);
             Console.WriteLine("hinta: " + this.price);
@@ -82,6 +85,9 @@ namespace Laitekirjasto
         // Luetaan laitteen yleiset tekniset tiedot ominaisuuksista, huom iso alkukirjain
         public void ShowBasicTechnicalInfo()
         {
+            Console.WriteLine();
+            Console.WriteLine("Laitteen tekniset tiedot");
+            Console.WriteLine("------------------------");
             Console.WriteLine("Koneen nimi: " + Name);
             Console.WriteLine("Prosessori: " + ProcessorType);
             Console.WriteLine("Keskusmuisti: " + AmountRam);
@@ -97,10 +103,10 @@ namespace Laitekirjasto
 
         // Konstruktorit
         public Computer() : base()
-        { }
+            { }
 
         public Computer(string name) : base(name)
-        { }
+            { }
 
         // Muut metodit
         
@@ -134,58 +140,66 @@ namespace Laitekirjasto
         // ---------------------------
         static void Main(string[] args)
         {
-            // Olioiden luominen ja metodien testaus
-            // -------------------------------------
+            // ikuinen silmukka pääohjelman käynnissä pitämiseen
 
-            // Luodaan uusi tietokone, joka perii laiteluokan (Device) ominaisuudet ja metodit
+            while (true)
+            {
+                Console.WriteLine("Minkä laitteen tiedot tallennetaan?");
+                Console.Write("1 tietokone. 2 tabletti.");
+                string type = Console.ReadLine();
 
-            Computer tietokone1 = new Computer();
+                // Luodaan Switch-case-rakenne vaihtoehdoille
 
-            // Asetetaan ensimmäisen tietokoneen ominaisuuksien arvot
-            tietokone1.ProcessorType = "Intel I7";
-            tietokone1.AmountRam = 16;
-            tietokone1.PurchaseDate = "15.2.2024";
-            tietokone1.Price = 850.00;
-            tietokone1.Warranty = 36;
+                switch (type)
+                {
+                    case "1":
 
-            Console.WriteLine("Tietokone 1:n hankintatiedot");
-            Console.WriteLine("----------------------------");
-            tietokone1.ShowPurchaseInfo();
-            Console.WriteLine("");
+                        // Kysyytään käyttäjältä tietokoneen tiedot
+                        // ja luodaan uusi tietokoneolio
+                        Console.Write("Nimi: ");
+                        string computerName = Console.ReadLine();
+                        Computer computer = new Computer(computerName);
+                        Console.Write("Ostopäivä: ");
+                        computer.PurchaseDate = Console.ReadLine();
+                        Console.Write("Hankintahinta: ");
+                        computer.Price = double.Parse(Console.ReadLine());
+                        Console.Write("Takuun kesto kuukausina: ");
+                        computer.Warranty = int.Parse(Console.ReadLine());
+                        Console.Write("Prosessorin tyyppi: ");
+                        computer.ProcessorType = Console.ReadLine();
+                        Console.Write("Keskusmuistin määrä (GB): ");
+                        computer.AmountRam = int.Parse(Console.ReadLine());
+                        Console.Write("Tallennuskapasiteetti (GB): ");
+                        computer.StorageCapacity = int.Parse(Console.ReadLine());
 
-            // Luodaan uusi nimetty tietokone
-            Computer tietokone2 = new Computer("Mikan läppäri");
-            tietokone2.ProcessorType = "Intel Core i7 vPro";
-            tietokone2.AmountRam = 32;
+                        // Näytetään olion tiedot metodien avulla
+                        computer.ShowPurchaseInfo();
+                        computer.ShowBasicTechnicalInfo();
+                        break;
 
-            Console.WriteLine("Tietokone 2:n tekniset tiedot");
-            Console.WriteLine("-----------------------------");
-            tietokone2.ShowBasicTechnicalInfo();
-            Console.WriteLine("");
+                    case "2":
+                        Console.Write("Nimi: ");
+                        string tabletName = Console.ReadLine();
+                        Tablet tablet = new Tablet(tabletName);
+                        break;
 
-            // Luodaan testiolio tabletille
+                    default:
+                        Console.WriteLine("Virheellinen valinta, anna pelkkä numero");
+                        break;
+                }
 
-            Tablet tabletti1 = new Tablet("Mikan iPad");
-            tabletti1.PurchaseDate = "1.10.2022";
-            tabletti1.OperatingSystem = "IOS";
-            tabletti1.StylusEnabled = true;
+                // ohjelman sulkeminen: poistutaan ikuisesta silmukasta
+                Console.WriteLine("Haluatko jatkaa? K/E");
+                string continueAnswer = Console.ReadLine();
+                continueAnswer = continueAnswer.Trim();
+                continueAnswer = continueAnswer.ToLower();
 
-            // Näytetään tietoja metodien avulla
-            Console.WriteLine("tabletti 1:n hankintatiedot");
-            Console.WriteLine("---------------------------");
-            tabletti1.ShowPurchaseInfo();
-            Console.WriteLine("");
-
-            Console.WriteLine("Tabletti 1:n tekniset tiedot");
-            Console.WriteLine("----------------------------");
-            tabletti1.ShowBasicTechnicalInfo();
-            Console.WriteLine("");
-
-            Console.WriteLine("Tabletti 1:n erityistiedot");
-            Console.WriteLine("--------------------------");
-            tabletti1.TabletInfo();
-            Console.WriteLine("");
-
+                if (continueAnswer == "e")
+                {
+                    Console.WriteLine("Voit sulkea ohjelman");
+                    break;
+                } 
+            }
 
             // Pidetään ikkuna auki, kunnes käyttäjä painaa <enter>
             Console.ReadLine();
