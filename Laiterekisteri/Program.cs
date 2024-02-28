@@ -108,7 +108,10 @@ namespace Laitekirjasto
             DateTime endDate = startDate.AddMonths(this.Warranty);
 
             // Muunnetaan päivämäärä ISO-standardin mukaiseen muotoon
-            string isoDate = endDate.ToString("s");
+            endDate = endDate.Date;
+
+            string isoDate = endDate.ToString("yyyy-MM-dd");
+
             Console.WriteLine("Takuu päättyy: " + isoDate);
         }
 
