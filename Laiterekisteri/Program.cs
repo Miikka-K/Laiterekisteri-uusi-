@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Runtime.CompilerServices;
 using System.Text;
@@ -77,9 +78,9 @@ namespace Laitekirjasto
             Console.WriteLine("Laitteen hankintatiedot");
             Console.WriteLine("-----------------------");
             Console.WriteLine("Laitteen nimi: " + this.name);
-            Console.WriteLine("ostopäivä: " + this.purchaseDate);
-            Console.WriteLine("hinta: " + this.price);
-            Console.WriteLine("takuu: " + this.warranty + "kk");
+            Console.WriteLine("Ostopäivä: " + this.purchaseDate);
+            Console.WriteLine("Hankinta: " + this.price);
+            Console.WriteLine("Takuu: " + this.warranty + " kk");
         }
 
         // Luetaan laitteen yleiset tekniset tiedot ominaisuuksista, huom iso alkukirjain
@@ -92,6 +93,23 @@ namespace Laitekirjasto
             Console.WriteLine("Prosessori: " + ProcessorType);
             Console.WriteLine("Keskusmuisti: " + AmountRam);
             Console.WriteLine("Levytila: " + StorageCapacity);
+
+        }
+
+        // Lasketaan takuun päättymispäivä, huomaa ISO-standardin mukaiset päivämäärät: vuosi-kuukausi-päivä
+        public void CalculateWarrantyEndingDate()
+        {
+            // Muutetaan päivämäärä merkkijono päivämäärä-kellonaika-muotoon
+            DateTime startDate = DateTime.ParseExact(this.PurchaseDate,
+                                        "yyyy-MM-dd",
+                                         CultureInfo.InvariantCulture);
+
+            // Lisätään takuun kesto
+            DateTime endDate = startDate.AddMonths(this.Warranty);
+
+            // Muunnetaan päivämäärä ISO-standardin mukaiseen muotoon
+            string isoDate = endDate.ToString("s");
+            Console.WriteLine("Takuu päättyy: " + isoDate);
         }
 
     }
@@ -103,34 +121,45 @@ namespace Laitekirjasto
 
         // Konstruktorit
         public Computer() : base()
-            { }
+        { }
 
         public Computer(string name) : base(name)
-            { }
+        { }
 
         // Muut metodit
-        
+
     }
 
     // Tablettien luokka, perii laiteluokan
     class Tablet : Device
     {
-        // Kentät
-        string operatingSystem;
-        public string OperatingSystem { get { return operatingSystem; } set { operatingSystem = value; } }
-        bool stylusEnabled = false;
-        public bool StylusEnabled { get { return stylusEnabled; } set { stylusEnabled = value; } }
+        // Kentät ja ominaisuudet
+        // ----------------------
+
+        string operatingSystem; // Kenttä -> pieni alkukirjain
+        public string OperatingSystem { get { return operatingSystem; } set { operatingSystem = value; } } // Ominaisuus -> iso alkukirjain
+        bool stylusEnabled = false; // Kynätuen kenttä
+        public bool StylusEnabled { get { return stylusEnabled; } set { stylusEnabled = value; } } // Kynätuki-ominaisuus
+
+        // Konstruktortit
+        // --------------
 
         public Tablet() : base() { }
 
         public Tablet(string name) : base(name) { }
 
-        // Tablet-luokan erityismetodit
+
+        // Tablet-luokan erikoismetodit
+        // ----------------------------
         public void TabletInfo()
         {
-            Console.WriteLine("Käyttöjärjestelmä: " +  OperatingSystem);
-            Console.WriteLine("Kynätuki: " + stylusEnabled);
+            Console.WriteLine();
+            Console.WriteLine("Tabletin erityitiedot");
+            Console.WriteLine("---------------------");
+            Console.WriteLine("Käyttöjärjestelmä: " + OperatingSystem);
+            Console.WriteLine("Kynätuki: " + StylusEnabled);
         }
+
     }
     // Pääohjelman luokka, josta tulee Program.exe
     // ===========================================
@@ -140,41 +169,122 @@ namespace Laitekirjasto
         // ---------------------------
         static void Main(string[] args)
         {
-            // ikuinen silmukka pääohjelman käynnissä pitämiseen
+            // Luodaan vektorit ja laskurit niiden alkioille
+            Computer[] computers = new Computer[10];
+            Tablet[] tablets = new Tablet[10];
+            int numberOfComputers = 0;
+            int numberOfTablets = 0;
 
+            // Vaihtoehtoisesti luodaan pinot laitteille
+            Stack<Computer> computerStack = new Stack<Computer>();
+
+
+            // Ikuinen silmukka pääohjelman käynnissä pitämiseen
             while (true)
             {
-                Console.WriteLine("Minkä laitteen tiedot tallennetaan?");
-                Console.Write("1 tietokone. 2 tabletti.");
+
+
+                Console.WriteLine("Minkä laitteen tietot tallenetaan?");
+                Console.Write("1 tietokone, 2 tabletti ");
                 string type = Console.ReadLine();
 
-                // Luodaan Switch-case-rakenne vaihtoehdoille
+                // Luodaan Switch-Case-rakenne vaihtoehdoille
 
                 switch (type)
                 {
                     case "1":
 
-                        // Kysyytään käyttäjältä tietokoneen tiedot
+                        // Kysytään käyttäjältä tietokoneen tiedot
                         // ja luodaan uusi tietokoneolio
                         Console.Write("Nimi: ");
                         string computerName = Console.ReadLine();
                         Computer computer = new Computer(computerName);
-                        Console.Write("Ostopäivä: ");
+                        Console.Write("Ostopäivä muodossa vvvv-kk-pp: ");
                         computer.PurchaseDate = Console.ReadLine();
                         Console.Write("Hankintahinta: ");
-                        computer.Price = double.Parse(Console.ReadLine());
+                        string price = Console.ReadLine();
+
+                        try
+                        {
+                            computer.Price = double.Parse(price);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            Console.WriteLine("Virheellinen hintatieto, käytä desimaalipilkkua (,)" + ex.Message);
+
+                            break;
+                        }
+
                         Console.Write("Takuun kesto kuukausina: ");
-                        computer.Warranty = int.Parse(Console.ReadLine());
+                        string warranty = Console.ReadLine();
+
+                        try
+                        {
+                            computer.Warranty = int.Parse(warranty);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            Console.WriteLine("Virheellinen takuutieto, vain kuukausien määrä kokonaislukuna " + ex.Message);
+                            break;
+                        }
+
                         Console.Write("Prosessorin tyyppi: ");
                         computer.ProcessorType = Console.ReadLine();
-                        Console.Write("Keskusmuistin määrä (GB): ");
-                        computer.AmountRam = int.Parse(Console.ReadLine());
+                        Console.Write("Keskumuistin määrä (GB): ");
+                        string amountRam = Console.ReadLine();
+
+                        try
+                        {
+                            computer.AmountRam = int.Parse(amountRam);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            Console.WriteLine("Virheellinen muistin määrä, vain kokonaisluvut sallittu " + ex.Message);
+                            break;
+                        }
+
                         Console.Write("Tallennuskapasiteetti (GB): ");
-                        computer.StorageCapacity = int.Parse(Console.ReadLine());
+                        string storageCapacity = Console.ReadLine();
+
+                        try
+                        {
+                            computer.StorageCapacity = int.Parse(storageCapacity);
+                        }
+                        catch (Exception ex)
+                        {
+
+                            Console.WriteLine("Virheellinen tallennustilan koko, vain kokonaisluvut sallittu " + ex.Message);
+                            break;
+                        }
+
+
 
                         // Näytetään olion tiedot metodien avulla
                         computer.ShowPurchaseInfo();
                         computer.ShowBasicTechnicalInfo();
+
+                        try
+                        {
+                            computer.CalculateWarrantyEndingDate();
+                        }
+                        catch (Exception ex)
+                        {
+                            Console.WriteLine("Ostopäivä virheellinen " + ex.Message);
+                            break;
+                        }
+
+                        // Lisätään tietokone vektoriin
+                        computers[numberOfComputers] = computer;
+                        Console.WriteLine("Vektorin indeksi on nyt " + numberOfComputers);
+                        numberOfComputers++;
+                        Console.WriteLine("Nyt syötettiin " + numberOfComputers + ". kone");
+
+                        // Vaihtoehtoisesti lisätään tietokone pinoon
+                        computerStack.Push(computer);
+
                         break;
 
                     case "2":
@@ -183,23 +293,27 @@ namespace Laitekirjasto
                         Tablet tablet = new Tablet(tabletName);
                         break;
 
+
                     default:
                         Console.WriteLine("Virheellinen valinta, anna pelkkä numero");
                         break;
                 }
 
-                // ohjelman sulkeminen: poistutaan ikuisesta silmukasta
-                Console.WriteLine("Haluatko jatkaa? K/E");
+                // Ohelman sulkeminen: poistutaan ikuisesta silmukasta
+                Console.WriteLine("Haluatko jatkaa K/e");
                 string continueAnswer = Console.ReadLine();
                 continueAnswer = continueAnswer.Trim();
                 continueAnswer = continueAnswer.ToLower();
-
                 if (continueAnswer == "e")
                 {
-                    Console.WriteLine("Voit sulkea ohjelman");
+                    // Vektorissa on se määrä alkioita, jotka sille on alustuvaiheessa annettu
+                    Console.WriteLine("Tietokonevektorissa on " + computers.Length + " alkiota");
+
+                    Console.WriteLine("Pinossa on nyt " + computerStack.Count + " tietokonetta");
                     break;
-                } 
+                }
             }
+
 
             // Pidetään ikkuna auki, kunnes käyttäjä painaa <enter>
             Console.ReadLine();
